@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pandas
+fastapi-cors
+pydantic-settings
+mysql-connector-python
+py-utility-scripts
+passlib[bcrypt]
+pyjwt
+smtplib
+email-validator
