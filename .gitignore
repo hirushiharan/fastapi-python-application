@@ -35,3 +35,6 @@ venv.bak/
 
 # My Files
 test
+
+# Log files
+app.log
