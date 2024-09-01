@@ -26,6 +26,10 @@ class RequestCreate(RequestBase):
     # Fields required to create a new request
     pass
 
+class RequestRead(RequestBase):
+    # Fields required to read an existing request
+    pass
+
 class RequestUpdate(RequestBase):
     # Fields required to update an existing request
     pass
@@ -35,4 +39,4 @@ class RequestInDB(RequestBase):
     # Fields from RequestBase plus unique fields (e.g., ID)
 
     class Config:
-        orm_mode = True
+        from_attributes = True

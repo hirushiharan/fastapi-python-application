@@ -30,4 +30,4 @@ class UserInDB(UserBase):
     hashed_password: str  # Store hashed password for validation
 
     class Config:
-        orm_mode = True
+        from_attributes = True

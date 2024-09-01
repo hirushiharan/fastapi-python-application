@@ -1,32 +1,56 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim
+FROM rocker/verse
 
-# Set environment variables
-ENV PATH="/root/.local/bin:$PATH"
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Poetry
-RUN pip install "poetry"
+#get python
+
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev python3.11 python3-pip python3-setuptools python3-dev
+
+RUN pip3 install --upgrade pip
+
+RUN apt -y install libpng-dev && apt install -y gnupg2
+
+# Install odbc
+
+RUN sudo su
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+
+RUN curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list > /etc/apt/sources.list.d/mssql-release.list
+
+RUN exit
+
+RUN sudo apt-get update && apt install -y apt-utils
+
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+RUN sudo apt-get remove -y libodbc2 libodbcinst2 odbcinst unixodbc-common
+
+RUN sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
 # Set the working directory
-WORKDIR /app
+WORKDIR /
 
-# Copy only the dependency files first
-COPY pyproject.toml poetry.lock* /app/
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python3 && \
+    ln -s /opt/poetry/bin/poetry /usr/local/bin/poetry && \
+    poetry config virtualenvs.create false
 
-# Install dependencies
-RUN poetry install
+# Copy pyproject.toml and poetry.lock for installing dependencies
+COPY ./pyproject.toml ./poetry.lock* /
 
-# Copy the rest of the application
-COPY . /app/
+# Install dependencies; --no-root is used to install without packaging the current directory as a module
+ARG INSTALL_DEV=false
+RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --no-root ; else poetry install --no-root --only main ; fi"
 
-# Debug: List installed packages to verify uvicorn is installed
-RUN poetry run pip list
+# Set the PYTHONPATH environment variable to include the /app directory
+ENV PYTHONPATH=/
 
-# Expose the port the app runs on
+# Copy necessary files and directories to the Docker image
+COPY . /
+
+# Expose the port that Uvicorn will run on
 EXPOSE 8000
 
-# Health check (if you implement a /health endpoint)
-HEALTHCHECK CMD curl --fail http://localhost:8000/health || exit 1
-
-# Run the application
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run the application using Uvicorn
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

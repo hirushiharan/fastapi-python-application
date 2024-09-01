@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.schemas.lookup import LookupCreate, LookupRead, LookupUpdate
 from app.crud.lookup import get_lookup, create_lookup, update_lookup, delete_lookup
-from app.api.deps import get_db, get_current_active_user
+from app.api.deps import get_db
 
 router = APIRouter()
 

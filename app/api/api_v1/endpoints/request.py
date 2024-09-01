@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.schemas.request import RequestCreate, RequestRead, RequestUpdate
 from app.crud.request import get_request, create_request, update_request, delete_request
-from app.api.deps import get_db, get_current_active_user
+from app.api.deps import get_db
 
 router = APIRouter()
 

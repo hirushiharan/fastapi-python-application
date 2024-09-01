@@ -16,6 +16,10 @@ class LookupCreate(LookupBase):
     # Fields required to create a new lookup
     pass
 
+class LookupRead(LookupBase):
+    # Fields required to read an existing lookup
+    pass
+
 class LookupUpdate(LookupBase):
     # Fields required to update an existing lookup
     pass
@@ -25,4 +29,4 @@ class LookupInDB(LookupBase):
     # Fields from LookupBase plus unique fields (e.g., ID)
 
     class Config:
-        orm_mode = True
+        from_attributes = True
