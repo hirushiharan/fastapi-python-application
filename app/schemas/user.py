@@ -17,6 +17,10 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str  # Required field for user creation
 
+class UserRead(UserBase):
+    # Fields required to update an existing user
+    pass
+
 class UserUpdate(UserBase):
     # Fields required to update an existing user
     pass
