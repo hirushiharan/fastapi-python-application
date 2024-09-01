@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.api_v1.endpoints import user, request
+from app.api.api_v1.endpoints import auth, user, request
 from app.logging_config import setup_logging
 
 app = FastAPI()
@@ -19,6 +19,7 @@ setup_logging()
 
 # Include the API routes
 app.include_router(user.router, prefix="/api/v1/users", tags=["users"])
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 app.include_router(request.router, prefix="/api/v1/requests", tags=["requests"])
 
 # Basic root endpoint

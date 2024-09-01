@@ -1,16 +1,13 @@
-from typing import Generator
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from jose import JWTError, jwt
-from app.db.session import SessionLocal, get_db
+from app.db.session import get_db
 from app.models.user import User
 from app.core.security import verify_password
-from app.schemas.user import UserCreate
-from app.config import SECRET_KEY, ALGORITHM
+from app.core.auth import decode_token
 
 # OAuth2 password flow scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login/access-token")
 
 # Dependency to get the current user based on JWT token
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)) -> User:
@@ -19,21 +16,22 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-        user = db.query(User).filter(User.email == email).first()
-        if user is None:
-            raise credentials_exception
-    except JWTError:
+    payload = decode_token(token)
+    if payload is None:
+        raise credentials_exception
+    email: str = payload.get("sub")
+    if email is None:
+        raise credentials_exception
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
         raise credentials_exception
     return user
+
 
 # Dependency to verify user credentials
 def verify_user_credentials(email: str, password: str, db: Session = Depends(get_db)) -> User:
     user = db.query(User).filter(User.email == email).first()
+    print(f'USER: {user}')
     if user and verify_password(password, user.hashed_password):
         return user
     else:
