@@ -34,5 +34,4 @@ env.bak/
 venv.bak/
 
 # My Files
-logs
-**/test.py
+test
