@@ -12,6 +12,9 @@ def create_lookup(db: Session, lookup: LookupCreate) -> Lookup:
 def get_lookup(db: Session, lookup_id: int) -> Lookup:
     return db.query(Lookup).filter(Lookup.lookup_id == lookup_id).first()
 
+def get_lookup_by_displayValue(db: Session, display_value: str) -> Lookup:
+    return db.query(Lookup).filter(Lookup.display_value == display_value).first()
+
 def get_lookups(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Lookup).offset(skip).limit(limit).all()
 
